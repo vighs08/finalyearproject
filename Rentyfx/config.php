@@ -1,0 +1,5 @@
+<?php
+define('CLOUDINARY_CLOUD_NAME', 'dcixvvdof');
+define('CLOUDINARY_API_KEY', '151123872128337');
+define('CLOUDINARY_API_SECRET', 'sPwb9ETV1eh2v0dIwiC9vU4WQk4');
+?>
