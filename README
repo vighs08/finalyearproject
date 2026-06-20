@@ -1,0 +1,208 @@
+# 🏠 RentifyX — Rental Marketplace Platform
+
+**RentifyX** is a full-stack rental marketplace web application built with PHP, MySQL, Bootstrap 5, and Cloudinary. It connects vendors (item listers) with buyers (renters) through a dual-role system, supporting product listings, rental requests, buyer/vendor dashboards, and cloud-hosted product images.
+
+> Built as a final-year project by [vighs08](https://github.com/vighs08).
+
+---
+
+## ✨ Features
+
+### For Buyers (Users)
+- Browse and search all rental listings with category filters
+- View detailed product pages with up to 3 images
+- Submit rental requests with delivery address and payment method
+- Track pending and past rental requests from a personal dashboard
+- Edit buyer profile (name, phone, preferred payment, delivery address)
+
+### For Vendors
+- Register as a vendor with store name and business address
+- List items for rent with multiple image uploads (via Cloudinary)
+- Edit and delete product listings
+- Manage incoming buyer requests
+- View buyer details and transaction history from the vendor dashboard
+- Create product categories
+
+### General
+- Role-based access control (user / vendor)
+- Secure login with bcrypt password hashing
+- Session-based authentication with protected routes
+- Responsive UI using Bootstrap 5
+- Search bar and category-based filtering on product listings
+
+---
+
+## 📁 Project Structure
+
+```
+Rentyfx/
+├── index.php                # Landing page
+├── login.php                # User login
+├── signup.php               # User registration (auto-login after signup)
+├── navbar.php               # Shared top navbar (with search + role-based links)
+├── authNav.php              # Auth-page sidebar nav
+│
+├── products_listing.php     # Main product grid with search & category filters
+├── productsDetails.php      # Individual product detail page
+│
+├── buyerProfile.php         # Buyer dashboard (orders, pending requests, profile)
+├── edit_data.php            # Edit buyer profile details
+├── temp_request.php         # Submit a rental request for an item
+│
+├── vendorRegistration.php   # Register current user as a vendor
+├── vendor_dashboard.php     # Vendor dashboard (listings, buyers, earnings)
+├── userprofile.php          # Vendor profile view
+├── editVenderInfo.php       # Edit vendor business info
+│
+├── addProducts.php          # Add new rental product (with Cloudinary upload)
+├── editProduct.php          # Edit existing product
+├── createCategory.php       # Create a new product category
+│
+├── buyers_section.php       # Partial: buyer table for vendor dashboard
+├── db_connect.php           # MySQL database connection
+├── config.php               # Cloudinary API credentials
+│
+├── composer.json            # PHP dependencies (Cloudinary SDK)
+└── vendor/                  # Composer-managed packages
+    ├── cloudinary/cloudinary_php
+    ├── guzzlehttp/guzzle
+    ├── monolog/monolog
+    └── ...
+```
+
+---
+
+## 🗄️ Database Schema
+
+Database name: `rentfyx`
+
+| Table                  | Key Columns                                                                 |
+|------------------------|-----------------------------------------------------------------------------|
+| `users`                | `userID`, `First_Name`, `Last_Name`, `email`, `password` (bcrypt), `phoneNumber`, `role` (`user`/`vendor`), `createdAt` |
+| `vendors`              | `vendorID`, `userID` (FK), `storeName`, `businessAddress`, `rating`, `joinedAt` |
+| `buyers`               | `buyerID`, `userID` (FK), `preferredPaymentMethod`, `deliveryAddress`       |
+| `items`                | `itemID`, `vendorID` (FK), `categoryID` (FK), `title`, `description`, `price`, `status`, `createdAt` |
+| `item_images`          | `itemID` (FK), `imageUrl`, `imageURL2`, `imageURL3`                        |
+| `categories`           | `categoryID`, `categoryName`, `description`, `userID`, `createdAt`         |
+| `temppurchaserequests` | `RequestID`, `UserID`, `VendorID`, `RentalItemID`, `Token`, `RequestDate`, `Status` |
+| `transactions`         | `transactionDate`, `paymentStatus`, `deliveryStatus`, `totalAmount`, `buyerID`, `sellerID` |
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- [XAMPP](https://www.apachefriends.org/) (PHP 8.x + Apache + MySQL)
+- [Composer](https://getcomposer.org/) (for installing Cloudinary SDK)
+- A free [Cloudinary](https://cloudinary.com/) account
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/vighs08/finalyearproject.git
+   cd finalyearproject
+   ```
+
+2. **Move to your web server root**
+   ```bash
+   # XAMPP on Windows
+   cp -r Rentyfx C:/xampp/htdocs/rentifyx
+
+   # XAMPP on Linux/macOS
+   cp -r Rentyfx /opt/lampp/htdocs/rentifyx
+   ```
+
+3. **Install PHP dependencies**
+   ```bash
+   cd Rentyfx
+   composer install
+   ```
+
+4. **Import the database**
+   - Start Apache and MySQL from the XAMPP Control Panel
+   - Open [phpMyAdmin](http://localhost/phpmyadmin)
+   - Create a database named `rentfyx`
+   - Import your SQL schema (create the tables listed above)
+
+5. **Configure Cloudinary**
+
+   Edit `Rentyfx/config.php` with your own Cloudinary credentials:
+   ```php
+   define('CLOUDINARY_CLOUD_NAME', 'your_cloud_name');
+   define('CLOUDINARY_API_KEY',    'your_api_key');
+   define('CLOUDINARY_API_SECRET', 'your_api_secret');
+   ```
+
+   > ⚠️ The current `config.php` has real API credentials committed to the repo. Rotate these immediately and use environment variables or a `.env` file.
+
+6. **Configure database credentials**
+
+   Edit `Rentyfx/db_connect.php` if your MySQL setup differs:
+   ```php
+   $host = 'localhost';
+   $db   = 'rentfyx';
+   $user = 'root';
+   $pass = '';
+   ```
+
+7. **Open in browser**
+   ```
+   http://localhost/rentifyx/index.php
+   ```
+
+---
+
+## 🧭 User Flow
+
+```
+index.php
+    │
+    ├── signup.php ──────────────────────► products_listing.php
+    │                                             │
+    └── login.php  ──────────────────────►        │
+                                          ┌───────┴────────┐
+                                     [role=user]      [role=vendor]
+                                          │                │
+                                  buyerProfile.php  vendor_dashboard.php
+                                          │                │
+                               temp_request.php   addProducts.php
+                               (submit rental)    editProduct.php
+                                                  createCategory.php
+                                                  vendorRegistration.php
+```
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer        | Technology                              |
+|--------------|-----------------------------------------|
+| Backend      | PHP 8.x                                 |
+| Database     | MySQL (via `mysqli` with prepared stmts)|
+| Frontend     | HTML5, CSS3, Bootstrap 5.3              |
+| Image Hosting| Cloudinary PHP SDK v3                   |
+| HTTP Client  | Guzzle (via Composer)                   |
+| Logging      | Monolog (Cloudinary dependency)         |
+| Dev Server   | XAMPP (Apache + MySQL)                  |
+
+---
+
+## ⚠️ Known Issues & Security Notes
+
+This project was built as a final-year academic project. Before any production deployment, the following should be addressed:
+
+- **🔐 Exposed Cloudinary credentials** — `config.php` has API keys committed directly to the repository. Rotate these immediately and use environment variables or a `.env` file.
+- **🔐 Exposed DB credentials** — `db_connect.php` has hardcoded database credentials. Use environment variables instead.
+- **🛡️ No CSRF protection** — Forms do not include CSRF tokens. Add them for all state-changing operations.
+- **🛡️ Inconsistent input sanitization** — Some pages use `real_escape_string()` instead of prepared statements. Migrate all queries fully to prepared statements.
+- **🛡️ No rate limiting** — Login has no brute-force protection.
+- **📋 Debug output** — `addProducts.php` echoes a debug message to the browser. Remove before any public deployment.
+- **📦 `vendor/` committed** — The Composer `vendor/` directory is tracked in git. Add it to `.gitignore` and let users run `composer install`.
+
+---
+
+## 📄 License
+
+This project was built as a college final-year project. No license is specified; use for educational purposes.
